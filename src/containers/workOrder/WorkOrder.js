@@ -16,6 +16,8 @@ import { getLogin } from '../../actions/login/loginFunctions';
 import { getAndFilterWorkOrders } from '../../actions/workOrder/workOrderFunctions';
 import Loading from '../../Loading';
 import WorkOrderItem from '../../components/WorkOrderItem';
+import ScrollViewWorkOrder from '../../components/ScrollViewWorkOrder';
+import { showToast } from '../../GeneralFunction';
 
 var moment = require('moment');
 
@@ -28,10 +30,11 @@ class WorkOrder extends React.Component {
             displayedDate: new Date(),
             showDatePicker: false,
         };
-    }
+    };
 
     componentDidMount() {
         const { idEmployee } = this.props;
+
         if (idEmployee !== '') {
             this.getWorkOrders();
         }
@@ -39,11 +42,10 @@ class WorkOrder extends React.Component {
 
     handleDisplayedDate = (displayedDate) => {
         var dateToday = new Date();
-
         var dateYesterday = new Date(dateToday);
-        dateYesterday.setDate(dateYesterday.getDate() - 1);
-
         var dateTomorrow = new Date(dateToday);
+
+        dateYesterday.setDate(dateYesterday.getDate() - 1);
         dateTomorrow.setDate(dateTomorrow.getDate() + 1);
 
         if (moment(displayedDate).isSame(dateToday, 'day'))
@@ -58,25 +60,32 @@ class WorkOrder extends React.Component {
 
     handleDateNext = () => {
         const { displayedDate } = this.state;
+
         displayedDate.setDate(displayedDate.getDate() + 1);
+
         this.setState({ displayedDate });
+
         this.getWorkOrders();
-    }
+    };
 
     handleDateBefore = () => {
         const { displayedDate } = this.state;
+
         displayedDate.setDate(displayedDate.getDate() - 1);
+
         this.setState({ displayedDate });
+
         this.getWorkOrders();
     };
 
     handleDatePicker = () => {
         this.setState({ showDatePicker: true });
-    }
+    };
 
     setDatePicked = (event, datePicked) => {
         const { displayedDate } = this.state;
         datePicked = datePicked || displayedDate;
+
         if (moment(datePicked).isSame(displayedDate)) {
             this.setState({ showDatePicker: false });
         } else {
@@ -84,29 +93,45 @@ class WorkOrder extends React.Component {
                 showDatePicker: false,
                 displayedDate: datePicked
             });
+
             this.getWorkOrders();
         }
-    }
+    };
 
     _onRefresh = () => {
         const { idEmployee, dispatch } = this.props;
+
         this.setState({ refreshing: true });
+
         if (idEmployee == '') {
-            dispatch(getLogin());
+            dispatch(getLogin())
+                .then(message => {
+                    if (message) {
+                        showToast(message);
+                    }
+                });
         } else {
             this.getWorkOrders();
         }
+
         this.setState({ refreshing: false });
-    }
+    };
 
     getWorkOrders = () => {
         const { dispatch, idEmployee } = this.props;
         const { displayedDate } = this.state;
-        dispatch(getAndFilterWorkOrders(idEmployee, displayedDate));
-    }
+
+        dispatch(getAndFilterWorkOrders(idEmployee, displayedDate))
+            .then(message => {
+                if (message) {
+                    showToast(message);
+                }
+            });
+    };
 
     handleWorkOrder = (workOrder) => {
         const { navigate } = this.props.navigation;
+
         navigate("ProcessWorkOrder", {
             workOrder: workOrder
         });
@@ -127,6 +152,11 @@ class WorkOrder extends React.Component {
         if (loading) {
             return <Loading />;
         }
+
+        const refreshControl = <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh}
+        />
 
         return (
             <View style={styles.container}>
@@ -158,198 +188,42 @@ class WorkOrder extends React.Component {
                     showsHorizontalScrollIndicator={false}
                     contentStyle={styles.viewTab}
                 >
-                    <ScrollView
+                    <ScrollViewWorkOrder
+                        handleWorkOrder={this.handleWorkOrder}
+                        refreshControl={refreshControl}
                         tabLabel="All"
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />
-                        }
-                    >
-                        {
-                            allWorkOrders && allWorkOrders.length > 0 ? (
-                                <View style={styles.viewListWorkOrder}>
-                                    {
-                                        allWorkOrders.map(workOrder =>
-                                            <View key={workOrder.id_work_order} style={styles.viewWorkOrder}>
-                                                <WorkOrderItem
-                                                    workOrder={workOrder}
-                                                    handleWorkOrder={this.handleWorkOrder}
-                                                    color={
-                                                        workOrder.finalized == 1 ? '#1c313a' :
-                                                            workOrder.cancelled == 1 ? '#e60000' :
-                                                                workOrder.id_visit_attendance == null ? '#009900' :
-                                                                    workOrder.time_out == null ? '#ffcc00' :
-                                                                        '#004de6'
-                                                    }
-                                                />
-                                            </View>
-                                        )
-                                    }
-                                </View>
-                            ) : (
-                                    <View style={styles.viewNotAvailable}>
-                                        <Text>No work orders.</Text>
-                                    </View>
-                                )
-                        }
-                    </ScrollView>
-                    <ScrollView
+                        workOrders={allWorkOrders}
+                    />
+                    <ScrollViewWorkOrder
+                        handleWorkOrder={this.handleWorkOrder}
+                        refreshControl={refreshControl}
                         tabLabel="Open"
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />
-                        }
-                    >
-                        {
-                            openWorkOrders && openWorkOrders.length > 0 ? (
-                                <View style={styles.viewListWorkOrder}>
-                                    {
-                                        openWorkOrders.map(workOrder =>
-                                            <View key={workOrder.id_work_order} style={styles.viewWorkOrder}>
-                                                <WorkOrderItem
-                                                    workOrder={workOrder}
-                                                    handleWorkOrder={this.handleWorkOrder}
-                                                    color={'#009900'}
-                                                />
-                                            </View>
-                                        )
-                                    }
-                                </View>
-                            ) : (
-                                    <View style={styles.viewNotAvailable}>
-                                        <Text>No work orders.</Text>
-                                    </View>
-                                )
-                        }
-                    </ScrollView>
-                    <ScrollView
+                        workOrders={openWorkOrders}
+                    />
+                    <ScrollViewWorkOrder
+                        handleWorkOrder={this.handleWorkOrder}
+                        refreshControl={refreshControl}
                         tabLabel="In Progress"
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />
-                        }
-                    >
-                        {
-                            inProgressWorkOrders && inProgressWorkOrders.length > 0 ? (
-                                <View style={styles.viewListWorkOrder}>
-                                    {
-                                        inProgressWorkOrders.map(workOrder =>
-                                            <View key={workOrder.id_work_order} style={styles.viewWorkOrder}>
-                                                <WorkOrderItem
-                                                    workOrder={workOrder}
-                                                    handleWorkOrder={this.handleWorkOrder}
-                                                    color={'#ffcc00'}
-                                                />
-                                            </View>
-                                        )
-                                    }
-                                </View>
-                            ) : (
-                                    <View style={styles.viewNotAvailable}>
-                                        <Text>No work orders.</Text>
-                                    </View>
-                                )
-                        }
-                    </ScrollView>
-                    <ScrollView
+                        workOrders={inProgressWorkOrders}
+                    />
+                    <ScrollViewWorkOrder
+                        handleWorkOrder={this.handleWorkOrder}
+                        refreshControl={refreshControl}
                         tabLabel="Closed"
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />
-                        }
-                    >
-                        {
-                            closedWorkOrders && closedWorkOrders.length > 0 ? (
-                                <View style={styles.viewListWorkOrder}>
-                                    {
-                                        closedWorkOrders.map(workOrder =>
-                                            <View key={workOrder.id_work_order} style={styles.viewWorkOrder}>
-                                                <WorkOrderItem
-                                                    workOrder={workOrder}
-                                                    handleWorkOrder={this.handleWorkOrder}
-                                                    color={'#004de6'}
-                                                />
-                                            </View>
-                                        )
-                                    }
-                                </View>
-                            ) : (
-                                    <View style={styles.viewNotAvailable}>
-                                        <Text>No work orders.</Text>
-                                    </View>
-                                )
-                        }
-                    </ScrollView>
-                    <ScrollView
+                        workOrders={closedWorkOrders}
+                    />
+                    <ScrollViewWorkOrder
+                        handleWorkOrder={this.handleWorkOrder}
+                        refreshControl={refreshControl}
                         tabLabel="Cancelled"
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />
-                        }
-                    >
-                        {
-                            cancelledWorkOrders && cancelledWorkOrders.length > 0 ? (
-                                <View style={styles.viewListWorkOrder}>
-                                    {
-                                        cancelledWorkOrders.map(workOrder =>
-                                            <View key={workOrder.id_work_order} style={styles.viewWorkOrder}>
-                                                <WorkOrderItem
-                                                    workOrder={workOrder}
-                                                    handleWorkOrder={this.handleWorkOrder}
-                                                    color={'#e60000'}
-                                                />
-                                            </View>
-                                        )
-                                    }
-                                </View>
-                            ) : (
-                                    <View style={styles.viewNotAvailable}>
-                                        <Text>No work orders.</Text>
-                                    </View>
-                                )
-                        }
-                    </ScrollView>
-                    <ScrollView
+                        workOrders={cancelledWorkOrders}
+                    />
+                    <ScrollViewWorkOrder
+                        handleWorkOrder={this.handleWorkOrder}
+                        refreshControl={refreshControl}
                         tabLabel="Finalized"
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />
-                        }
-                    >
-                        {
-                            finalizedWorkOrders && finalizedWorkOrders.length > 0 ? (
-                                <View style={styles.viewListWorkOrder}>
-                                    {
-                                        finalizedWorkOrders.map(workOrder =>
-                                            <View key={workOrder.id_work_order} style={styles.viewWorkOrder}>
-                                                <WorkOrderItem
-                                                    workOrder={workOrder}
-                                                    handleWorkOrder={this.handleWorkOrder}
-                                                    color={'#1c313a'}
-                                                />
-                                            </View>
-                                        )
-                                    }
-                                </View>
-                            ) : (
-                                    <View style={styles.viewNotAvailable}>
-                                        <Text>No work orders.</Text>
-                                    </View>
-                                )
-                        }
-                    </ScrollView>
+                        workOrders={finalizedWorkOrders}
+                    />
                 </ScrollableTabView>
                 {
                     showDatePicker && <DateTimePicker
@@ -391,23 +265,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         width: "100%",
     },
-    viewListWorkOrder: {
-        paddingHorizontal: 15,
-        paddingVertical: 10
-    },
-    viewNotAvailable: {
-        alignContent: "center",
-        alignItems: "center",
-        alignSelf: "center",
-        justifyContent: "center",
-        padding: 20,
-        width: "100%"
-    },
     viewTab: {
         backgroundColor: '#e6e6e6',
-    },
-    viewWorkOrder: {
-        marginVertical: 5
     }
 });
 

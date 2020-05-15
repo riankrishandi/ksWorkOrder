@@ -23,6 +23,19 @@ export async function requestLocationPermission(navigation, inOut) {
     }
 }
 
+export const showAlertOk = (title, message) => {
+    Alert.alert(
+        title,
+        message,
+        [
+            {
+                text: 'Ok'
+            }
+        ],
+        { cancelable: true }
+    );
+}
+
 export const showToast = (message) => {
     ToastAndroid.showWithGravity(
         message,
@@ -30,17 +43,3 @@ export const showToast = (message) => {
         ToastAndroid.CENTER
     );
 };
-
-export const showAlertOk = (title, message, onPress) => {
-    Alert.alert(
-        title,
-        message,
-        [
-            {
-                text: 'Ok',
-                onPress: () => onPress()
-            }
-        ],
-        { cancelable: true }
-    );
-}

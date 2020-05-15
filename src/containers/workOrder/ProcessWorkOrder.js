@@ -4,7 +4,6 @@ import {
     RefreshControl,
     ScrollView,
     StyleSheet,
-    ToastAndroid,
     Text,
     TextInput,
     TouchableOpacity,
@@ -16,7 +15,6 @@ import TabViewWorkOrder from '../../components/TabViewWorkOrder';
 import { getProcessWorkOrder, setSyncProcessWorkOrderComments, cancelWorkOrder, finalizeWorkOrder } from '../../actions/processWorkOrder/processWorkOrderFunctions';
 import Loading from '../../Loading';
 import Process from '../../components/Process';
-
 import {showToast} from '../../GeneralFunction';
 
 class ProcessWorkOrder extends React.Component {
@@ -54,9 +52,9 @@ class ProcessWorkOrder extends React.Component {
     getWorkOrder = (workOrder) => {
         const { dispatch, navigation, idEmployee } = this.props;
         dispatch(getProcessWorkOrder(workOrder, navigation, idEmployee))
-            .then(err => {
-                if (err) {
-                    showToast("Network error.");
+            .then(message => {
+                if (message) {
+                    showToast(message);
                 }
             });
     }
@@ -114,14 +112,6 @@ class ProcessWorkOrder extends React.Component {
             { cancelable: true }
         );
     }
-
-    // showToast = (message) => {
-    //     ToastAndroid.showWithGravity(
-    //         message,
-    //         ToastAndroid.SHORT,
-    //         ToastAndroid.CENTER
-    //     );
-    // };
 
     render() {
         const { error, loading, navigation, workOrder } = this.props;

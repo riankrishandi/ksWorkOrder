@@ -89,8 +89,11 @@ export function getProcessWorkOrder(workOrder, navigation, idEmployee) {
                 } else if (comments != null) {
                     dispatch(syncProcessWorkOrderComments(comments));
                 }
+
                 dispatch(errorGetProcessWorkOrder(err));
-                return err;
+                let message = "Network error."
+
+                return message;
             });
     }
 }

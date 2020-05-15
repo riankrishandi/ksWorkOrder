@@ -115,7 +115,7 @@ const workOrder = (state = initialState, action) => {
                 ...state,
                 loading: false,
                 error: action.error
-            }
+            };
 
         default:
             return state;

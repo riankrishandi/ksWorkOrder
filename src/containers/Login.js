@@ -10,6 +10,7 @@ import {
 import { connect } from 'react-redux';
 
 import { doLogin } from '../actions/login/loginFunctions';
+import { showAlertOk, showToast } from '../GeneralFunction';
 
 class Login extends React.Component {
 
@@ -24,10 +25,19 @@ class Login extends React.Component {
     handleLogin = () => {
         const { username, password } = this.state;
         const { dispatch } = this.props;
+
         if (username == '' || password == '') {
-            alert("Username or password cannot be blank.");
+            let title = "Warning";
+            let message = "Username or password cannot be blank."
+
+            showAlertOk(title, message);
         } else {
-            dispatch(doLogin(username, password));
+            dispatch(doLogin(username, password))
+                .then(message => {
+                    if (message) {
+                        showToast(message);
+                    }
+                });
         }
     }
 

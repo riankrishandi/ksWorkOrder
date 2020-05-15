@@ -1,16 +1,22 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
 
 import RootNavigator from './Router';
 import { getLogin } from './actions/login/loginFunctions';
 import Loading from './Loading';
+import {showToast} from './GeneralFunction';
 
 class CounterApp extends React.Component {
 
-    componentDidMount =  () => {
+    componentDidMount = () => {
         const { dispatch } = this.props;
-        dispatch((getLogin()));
+
+        dispatch(getLogin())
+            .then(message => {
+                if (message) {
+                    showToast(message);
+                }
+            });
     }
 
     render() {
