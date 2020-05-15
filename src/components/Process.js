@@ -17,6 +17,7 @@ class Process extends React.Component {
         this.state = {
             width: Dimensions.get('window').width
         };
+
         Dimensions.addEventListener('change', (e) => {
             this.setState(e.window);
         });
@@ -24,6 +25,7 @@ class Process extends React.Component {
 
     handleCheckInOut = (inOut) => {
         const { navigation } = this.props;
+        
         requestLocationPermission(navigation, inOut);
     }
 
@@ -119,7 +121,6 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
         borderRadius: 5,
-        // borderWidth: 1,
         paddingHorizontal: 10
     },
     icon: {

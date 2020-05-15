@@ -91,7 +91,7 @@ const login = (state = initialState, action) => {
                 idEmployee: null,
                 levelAccess: null,
                 error: action.error
-            }
+            };
 
         case DO_LOGOUT_BEGIN:
             return {

@@ -15,9 +15,7 @@ import LoginScreen from './containers/Login';
 import WorkOrderScreen from './containers/workOrder/WorkOrder';
 import ProcessWorkOrderScreen from './containers/workOrder/ProcessWorkOrder';
 import CheckInOutScreen from './containers/workOrder/CheckInOut';
-import GetLocationScreen from './containers/workOrder/GetLocation';
 import GetSignatureScreen from './containers/workOrder/GetSignature';
-import TakePhotoScreen from './containers/workOrder/TakePhoto';
 
 import AccountScreen from './containers/account/Account';
 
@@ -49,24 +47,10 @@ function WorkOrderStackScreen() {
                 })}
             />
             <Stack.Screen
-                name="GetLocation"
-                component={GetLocationScreen}
-                options={{
-                    headerTitle: "Get Location"
-                }}
-            />
-            <Stack.Screen
                 name="GetSignature"
                 component={GetSignatureScreen}
                 options={{
                     headerTitle: "Signature"
-                }}
-            />
-            <Stack.Screen
-                name="TakePhoto"
-                component={TakePhotoScreen}
-                options={{
-                    headerTitle: "Take Photo"
                 }}
             />
         </Stack.Navigator>

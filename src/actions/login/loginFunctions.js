@@ -25,7 +25,7 @@ import { showAlertOk } from '../../GeneralFunction';
 let idDevice = DeviceInfo.getUniqueId();
 const LOGIN_STATUS = 'LOGIN_STATUS';
 
-export function getLogin() {
+export const getLogin = () => {
     let address = "http://localhost:3000/api/login/";
     let body = {
         idDevice: idDevice
@@ -34,7 +34,7 @@ export function getLogin() {
     return async dispatch => {
         dispatch(getLoginBegin());
 
-        var loginStatus = await AsyncStorage.getItem(LOGIN_STATUS);
+        let loginStatus = await AsyncStorage.getItem(LOGIN_STATUS);
 
         return axios
             .post(address, body)
@@ -79,7 +79,7 @@ export function getLogin() {
     };
 }
 
-async function deleteLogin() {
+const deleteLogin = async () => {
     let address = "http://localhost:3000/api/login/";
     let body = {
         idDevice: idDevice
@@ -92,9 +92,7 @@ async function deleteLogin() {
                 if (res.data.success == 1) {
                     console.log("Delete login record success.");
                 } else {
-                    let message = "Delete login record error";
-
-                    return message;
+                    console.log("Delete login record error");
                 }
             })
         .catch(
@@ -104,7 +102,7 @@ async function deleteLogin() {
         );
 }
 
-export function doLogin(username, password) {
+export const doLogin = (username, password) => {
     let address = "http://localhost:3000/api/employee/login";
     let body = {
         username: username,
@@ -149,7 +147,7 @@ export function doLogin(username, password) {
     };
 };
 
-export function doLogout() {
+export const doLogout = () => {
     let address = "http://localhost:3000/api/login/";
     let body = {
         idDevice: idDevice

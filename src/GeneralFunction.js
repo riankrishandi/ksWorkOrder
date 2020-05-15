@@ -9,14 +9,16 @@ export async function requestLocationPermission(navigation, inOut) {
         const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
         );
+
         if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            console.log('You can use the ACCESS_FINE_LOCATION.');
             navigation.navigate("CheckInOut", {
                 inOut: inOut
             });
         } else {
-            console.log("Denied.");
-            alert("You must allow KsCheckIn to access this device's location to check in.")
+            let title = "Warning";
+            let message = "Location access is denied.";
+
+            showAlertOk(title, message);
         }
     } catch (error) {
         console.warn(error);
@@ -31,6 +33,24 @@ export const showAlertOk = (title, message) => {
             {
                 text: 'Ok'
             }
+        ],
+        { cancelable: true }
+    );
+}
+
+export const showAlertOkCancel = (title, message, onPressOk) => {
+    Alert.alert(
+        title,
+        message,
+        [
+            {
+                text: 'Ok',
+                onPress: () => onPressOk()
+            },
+            {
+                text: 'Cancel',
+                style: 'cancel'
+            },
         ],
         { cancelable: true }
     );

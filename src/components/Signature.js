@@ -107,8 +107,6 @@ const styles = StyleSheet.create({
     viewSignature: {
         alignItems: 'center',
         borderRadius: 5,
-        // borderWidth: 1,
-        // flex: 1,
         height: 100,
         justifyContent: 'center',
         width: 100

@@ -16,7 +16,7 @@ import {
 
 var moment = require('moment');
 
-export function getAndFilterWorkOrders(idEmployee, dateAssigned) {
+export const getAndFilterWorkOrders = (idEmployee, dateAssigned) => {
     let address = "http://localhost:3000/api/workOrder/getWorkOrdersByDateAssignedAndIdEmployee";
     let body = {
         dateAssigned: moment(dateAssigned).format('YYYY-MM-DD'),

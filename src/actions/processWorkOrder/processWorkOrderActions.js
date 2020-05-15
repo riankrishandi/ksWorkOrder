@@ -45,7 +45,14 @@ export const doCheckInBegin = () => ({
     type: DO_CHECK_IN_BEGIN
 });
 
-export const doCheckInSuccess = (dateVisitAttendance, timeIn, latitudeIn, longitudeIn, photoIn, descriptionIn) => ({
+export const doCheckInSuccess = (
+    dateVisitAttendance,
+    timeIn,
+    latitudeIn,
+    longitudeIn,
+    photoIn,
+    descriptionIn
+) => ({
     type: DO_CHECK_IN_SUCCESS,
     dateVisitAttendance,
     timeIn,

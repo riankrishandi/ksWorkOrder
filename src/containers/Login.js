@@ -33,9 +33,9 @@ class Login extends React.Component {
             showAlertOk(title, message);
         } else {
             dispatch(doLogin(username, password))
-                .then(message => {
-                    if (message) {
-                        showToast(message);
+                .then(res => {
+                    if (res) {
+                        showToast(res);
                     }
                 });
         }

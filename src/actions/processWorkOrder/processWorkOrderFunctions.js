@@ -22,84 +22,117 @@ import {
 } from './processWorkOrderActions';
 
 import { getAndFilterWorkOrders } from '../workOrder/workOrderFunctions';
+import { showAlertOk } from '../../GeneralFunction';
 
 var moment = require('moment');
-
 var dateVisitAttendance = moment(new Date()).format('YYYY-MM-DD');
+
+let titleAlert = "Warning";
 
 export const setSyncProcessWorkOrderComments = async (idWorkOrder, value) => {
     try {
         var key = "workOrderId:" + idWorkOrder;
+
         await AsyncStorage.setItem(key, value);
     } catch (e) {
-
+        console.log(e);
     }
 }
 
 export const deleteSyncProcessWorkOrderComments = async (idWorkOrder) => {
     try {
         var key = "workOrderId:" + idWorkOrder;
+
         await AsyncStorage.removeItem(key);
     } catch (error) {
-
+        console.log(e);
     }
 }
 
-export function getProcessWorkOrder(workOrder, navigation, idEmployee) {
+export const getProcessWorkOrder = (workOrder, navigation, idEmployee) => {
     var idWorkOrder = workOrder.id_work_order;
-    let body = {idWorkOrder: idWorkOrder};
-    let address = "http://localhost:3000/api/workOrder/getWorkOrderByIdWorkOrder";
     
+    let address = "http://localhost:3000/api/workOrder/getWorkOrderByIdWorkOrder";
+    let body = { idWorkOrder: idWorkOrder };
+
     return async dispatch => {
         dispatch(getProcessWorkOrderBegin());
-        
+
         var key = "workOrderId:" + idWorkOrder;
-        var comments = await AsyncStorage.getItem(key);
-        
+        var syncComments = await AsyncStorage.getItem(key);
+
         return axios
             .post(address, body)
             .then((res) => {
                 if (res.data.success == 1) {
                     let resWorkOrder = res.data.data;
+                    let finalized = resWorkOrder.finalized;
+                    let comments = resWorkOrder.work_order_comments;
+
                     dispatch(setProcessWorkOrder(resWorkOrder));
-                    if (resWorkOrder.finalized == 1) {
-                        if (resWorkOrder.work_order_comments == null || resWorkOrder.work_order_comments == '') {
+
+                    if (finalized == 1) {
+                        if (comments == null || comments == '') {
                             dispatch(syncProcessWorkOrderComments('No comments.'));
                         }
                     } else {
-                        if (comments != null) {
-                            dispatch(syncProcessWorkOrderComments(comments));
+                        if (syncComments != null) {
+                            dispatch(syncProcessWorkOrderComments(syncComments));
                         }
                     }
                     dispatch(getProcessWorkOrderSuccess());
                 } else {
-                    dispatch(errorGetProcessWorkOrder(res.data.message));
                     let message = res.data.message;
-                    alert(message);
-                    dispatch(getAndFilterWorkOrders(idEmployee, dateVisitAttendance));
-                    navigation.navigate("WorkOrder");
+
+                    dispatch(errorGetProcessWorkOrder(message));
+
+                    showAlertOk(titleAlert, message);
+
+                    dispatch(getAndFilterWorkOrders(idEmployee, dateVisitAttendance))
+                        .then(res => {
+                            navigation.navigate("WorkOrder");
+
+                            if (res) {
+                                return res;
+                            }
+                        });
                 }
             })
             .catch((err) => {
                 dispatch(setProcessWorkOrder(workOrder));
-                if (workOrder.finalized == 1) {
-                    if (workOrder.work_order_comments == null) {
+
+                let finalized = workOrder.finalized;
+                let comments = workOrder.comments;
+
+                if (finalized == 1) {
+                    if (comments == null) {
                         dispatch(syncProcessWorkOrderComments('No comments.'));
                     }
-                } else if (comments != null) {
-                    dispatch(syncProcessWorkOrderComments(comments));
+                } else if (syncComments != null) {
+                    dispatch(syncProcessWorkOrderComments(syncComments));
                 }
 
                 dispatch(errorGetProcessWorkOrder(err));
-                let message = "Network error."
+
+                let message = "No internet connection."
 
                 return message;
             });
     }
 }
 
-export function doCheckIn(idWorkOrder, time, latitudeIn, longitudeIn, photoIn, descriptionIn, navigation, idEmployee) {
+export const doCheckIn = (
+    idWorkOrder,
+    time,
+    latitudeIn,
+    longitudeIn,
+    photoIn,
+    descriptionIn,
+    idEmployee
+) => {
     var timeIn = moment(time).format('HH:mm:ss')
+
+    let address = "http://localhost:3000/api/visitAttendance/";
     let body = {
         idWorkOrder: idWorkOrder,
         dateVisitAttendance: dateVisitAttendance,
@@ -109,11 +142,13 @@ export function doCheckIn(idWorkOrder, time, latitudeIn, longitudeIn, photoIn, d
         photoIn: photoIn,
         descriptionIn: descriptionIn
     };
-    let address = "http://localhost:3000/api/visitAttendance/";
+
     return dispatch => {
         dispatch(doCheckInBegin());
-        return axios.post(address, body).then(
-            (res) => {
+
+        return axios
+            .post(address, body)
+            .then((res) => {
                 if (res.data.success == 1) {
                     dispatch(doCheckInSuccess(
                         dateVisitAttendance,
@@ -123,24 +158,45 @@ export function doCheckIn(idWorkOrder, time, latitudeIn, longitudeIn, photoIn, d
                         photoIn,
                         descriptionIn
                     ));
-                    navigation.navigate("ProcessWorkOrder");
-                    alert("Check-in success.");
+
                     dispatch(getAndFilterWorkOrders(idEmployee, dateVisitAttendance));
+
+                    let message = "Check-in success.";
+
+                    return message;
                 } else {
-                    dispatch(errorDoCheckIn(res.data.message));
-                    alert(res.data.message);
+                    let message = res.data.message;
+
+                    dispatch(errorDoCheckIn(message));
+
+                    showAlertOk(titleAlert, message);
                 }
-            }, (err) => {
+            })
+            .catch((err) => {
                 console.log(err);
+
                 dispatch(errorDoCheckIn(err));
-                alert(err);
-            }
-        );
+
+                let message = "No internet connection.";
+
+                showAlertOk(titleAlert, message);
+            });
     }
 }
 
-export function doCheckOut(idWorkOrder, time, latitudeOut, longitudeOut, photoOut, signature, descriptionOut, navigation, idEmployee) {
+export const doCheckOut = (
+    idWorkOrder,
+    time,
+    latitudeOut,
+    longitudeOut,
+    photoOut,
+    signature,
+    descriptionOut,
+    idEmployee
+) => {
     var timeOut = moment(time).format('HH:mm:ss')
+
+    let address = "http://localhost:3000/api/visitAttendance/updateVisitAttendanceCheckOutByIdWorkOrder";
     let body = {
         idWorkOrder: idWorkOrder,
         timeOut: timeOut,
@@ -150,11 +206,13 @@ export function doCheckOut(idWorkOrder, time, latitudeOut, longitudeOut, photoOu
         signature: signature,
         descriptionOut: descriptionOut
     };
-    let address = "http://localhost:3000/api/visitAttendance/updateVisitAttendanceCheckOutByIdWorkOrder";
+
     return dispatch => {
         dispatch(doCheckOutBegin());
-        return axios.patch(address, body).then(
-            (res) => {
+
+        return axios
+            .patch(address, body)
+            .then((res) => {
                 if (res.data.success == 1) {
                     dispatch(doCheckOutSuccess(
                         timeOut,
@@ -164,72 +222,111 @@ export function doCheckOut(idWorkOrder, time, latitudeOut, longitudeOut, photoOu
                         signature,
                         descriptionOut
                     ));
-                    navigation.navigate("ProcessWorkOrder");
-                    alert("Check-out success.");
+
                     dispatch(getAndFilterWorkOrders(idEmployee, dateVisitAttendance));
+
+                    let message = "Check-out success.";
+
+                    return message;
                 } else {
-                    dispatch(errorDoCheckOut(res.data.message));
-                    alert(res.data.message);
+                    let message = "Error.";
+
+                    dispatch(errorDoCheckOut(message));
+
+                    showAlertOk(titleAlert, message);
                 }
-            }, (err) => {
+            })
+            .catch((err) => {
                 console.log(err);
+
                 dispatch(errorDoCheckOut(err));
-                alert(err);
-            }
-        );
+
+                let message = "No internet connection."
+
+                showAlertOk(titleAlert, message);
+            });
     }
 }
 
-export function cancelWorkOrder(idWorkOrder, idEmployee) {
+export const cancelWorkOrder = (idWorkOrder, idEmployee) => {
+    let address = "http://localhost:3000/api/workOrder/updateWorkOrderCancelByIdWorkOrder";
     let body = {
         idWorkOrder: idWorkOrder
     };
-    let address = "http://localhost:3000/api/workOrder/updateWorkOrderCancelByIdWorkOrder";
+
     return dispatch => {
         dispatch(cancelWorkOrderBegin());
-        return axios.patch(address, body).then(
-            (res) => {
+
+        return axios
+            .patch(address, body)
+            .then((res) => {
                 if (res.data.success = 1) {
                     dispatch(cancelWorkOrderSuccess());
-                    alert("Cancellation success.");
+
                     dispatch(getAndFilterWorkOrders(idEmployee, dateVisitAttendance));
+
+                    let message = "Cancellation success.";
+
+                    return message;
                 } else {
-                    dispatch(errorCancelWorkOrder(res.data.message));
-                    alert(res.data.message);
+                    let message = "Error";
+
+                    dispatch(errorCancelWorkOrder(message));
+
+                    showAlertOk(titleAlert, message);
                 }
-            }, (err) => {
+            })
+            .catch((err) => {
                 console.log(err);
+
                 dispatch(errorCancelWorkOrder(err));
-                alert(err);
-            }
-        );
+
+                let message = "No internet connection.";
+
+                showAlertOk(titleAlert, message);
+            });
     }
 }
 
-export function finalizeWorkOrder(comments, idWorkOrder, idEmployee) {
+export const finalizeWorkOrder = (comments, idWorkOrder, idEmployee) => {
+    let address = "http://localhost:3000/api/workOrder/updateWorkOrderFinalizeByIdWorkOrder";
     let body = {
         comments,
         idWorkOrder: idWorkOrder
     };
-    let address = "http://localhost:3000/api/workOrder/updateWorkOrderFinalizeByIdWorkOrder";
+
     return dispatch => {
         dispatch(finalizeWorkOrderBegin());
-        return axios.patch(address, body).then(
-            (res) => {
+
+        return axios
+            .patch(address, body)
+            .then((res) => {
                 if (res.data.success = 1) {
                     dispatch(finalizeWorkOrderSuccess(comments));
+
                     dispatch(getAndFilterWorkOrders(idEmployee, dateVisitAttendance));
+
                     deleteSyncProcessWorkOrderComments(idWorkOrder);
-                    alert("Finalization success.");
+
+                    let message = "Finalization success.";
+
+                    return message;
                 } else {
-                    dispatch(errorFinalizeWorkOrder(res.data.message));
-                    alert(res.data.message);
+                    let message = "Error.";
+
+                    dispatch(errorFinalizeWorkOrder(message));
+
+                    showAlertOk(titleAlert, message);
                 }
-            }, (err) => {
+            })
+            .catch((err) => {
                 console.log(err);
+
                 dispatch(errorFinalizeWorkOrder(err));
-                alert(err);
-            }
-        );
+
+                let message = "No internet connection.";
+
+                showAlertOk(titleAlert, message);
+            });
     }
 }

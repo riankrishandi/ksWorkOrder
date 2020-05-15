@@ -13,6 +13,7 @@ class Account extends React.Component {
 
     handleLogout = () => {
         const { dispatch } = this.props;
+        
         dispatch(doLogout());
     }
 

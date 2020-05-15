@@ -13,9 +13,11 @@ import { connect } from 'react-redux';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 
-import { doCheckIn, doCheckOut } from '../../actions/processWorkOrder/processWorkOrderFunctions';
 import Photo from '../../components/Photo';
 import Signature from '../../components/Signature';
+
+import { doCheckIn, doCheckOut } from '../../actions/processWorkOrder/processWorkOrderFunctions';
+import { showAlertOk, showToast } from '../../GeneralFunction';
 
 var moment = require('moment');
 
@@ -38,7 +40,9 @@ class CheckInOut extends React.Component {
 
     componentDidMount = () => {
         const { route, navigation } = this.props;
-        var inOut = route.params?.inOut;
+        
+        let inOut = route.params?.inOut;
+        
         navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity
@@ -65,11 +69,13 @@ class CheckInOut extends React.Component {
                 </TouchableOpacity>
             )
         });
+
         this.handleGetCurrentPosition();
     }
 
     handleGetCurrentPosition = () => {
         this.setState({ refreshing: true });
+        
         Geolocation.getCurrentPosition(
             location => {
                 let currentLocation = {
@@ -82,7 +88,11 @@ class CheckInOut extends React.Component {
                 this.setState({ currentLocation, getLocation: true, refreshing: false });
             },
             error => {
-                alert(error.message)
+                let title = "Warning";
+                let message = "Location request timed out.";
+                
+                showAlertOk(title, message);
+                
                 this.setState({ getLocation: false, refreshing: false });
             },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000 }
@@ -101,28 +111,64 @@ class CheckInOut extends React.Component {
 
     handleGetSignature = () => {
         const { navigate } = this.props.navigation;
+        
         navigate("GetSignature");
     }
 
     handleRemoveSignature = () => {
         const { navigation } = this.props;
+        
         navigation.setParams({
             signature: null
         });
     }
 
-    handleDoCheckIn = () => {
-        const { dispatch, workOrder, navigation, idEmployee } = this.props;
-        const { currentTime, getLocation, currentLocation, photoDataBase64, description } = this.state;
-        if (!currentTime) {
-            alert("Time is blank.");
-        } else if (!getLocation) {
-            alert("Location is blank.");
-        } else if (!photoDataBase64) {
-            alert("Photo is blank.");
+    validateBeforeDoCheckInOut = () => {
+        const { route } = this.props;
+        const { getLocation, photoDataBase64, description } = this.state;
+
+        let inOut = route.params?.inOut;
+        let signature = route.params?.signature;
+        let titleAlert = "Warning";
+        let message = "";
+
+        if (!getLocation) {
+            this.setState({
+                currentLocation: {
+                    latitude: null,
+                    longitude: null
+                }
+            });
+        }
+
+        if (!photoDataBase64) {
+            message = "Photo cannot be blank.";
+
+            showAlertOk(titleAlert, message);
+
+            return false;
+        } else if (inOut == 1 && !signature) {
+            message = "Signature cannot be blank.";
+
+            showAlertOk(titleAlert, message);
+
+            return false;
         } else if (!description) {
-            alert("Description is blank.");
+            message = "Description cannot be blank";
+
+            showAlertOk(titleAlert, message);
+
+            return false;
         } else {
+            return true;
+        }
+    }
+
+    handleDoCheckIn = () => {
+        const { dispatch, workOrder, idEmployee, navigation } = this.props;
+        const { currentTime, currentLocation, photoDataBase64, description } = this.state;
+
+        if (this.validateBeforeDoCheckInOut()) {
             dispatch(doCheckIn(
                 workOrder.id_work_order,
                 currentTime,
@@ -130,29 +176,25 @@ class CheckInOut extends React.Component {
                 currentLocation.longitude,
                 photoDataBase64,
                 description,
-                navigation,
                 idEmployee
-            ));
+            ))
+                .then(message => {
+                    if (message) {
+                        showToast(message);
+
+                        navigation.navigate("ProcessWorkOrder");
+                    }
+                });
         }
     }
 
     handleDoCheckOut = () => {
-        const { dispatch, idEmployee, navigation, route, workOrder } = this.props;
-        const { currentTime, getLocation, currentLocation, photoDataBase64, description } = this.state;
+        const { dispatch, idEmployee, route, workOrder, navigation } = this.props;
+        const { currentTime, currentLocation, photoDataBase64, description } = this.state;
 
-        var signature = route.params?.signature;
+        let signature = route.params?.signature;
 
-        if (!currentTime) {
-            alert("Time is blank.");
-        } else if (!getLocation) {
-            alert("Location is blank.");
-        } else if (!photoDataBase64) {
-            alert("Photo is blank.");
-        } else if (!signature) {
-            alert("Signature is blank.")
-        } else if (!description) {
-            alert("Description is blank.");
-        } else {
+        if (this.validateBeforeDoCheckInOut()) {
             dispatch(doCheckOut(
                 workOrder.id_work_order,
                 currentTime,
@@ -161,9 +203,15 @@ class CheckInOut extends React.Component {
                 photoDataBase64,
                 signature,
                 description,
-                navigation,
                 idEmployee
-            ));
+            ))
+                .then(message => {
+                    if (message) {
+                        showToast(message);
+
+                        navigation.navigate("ProcessWorkOrder");
+                    }
+                });
         }
     }
 

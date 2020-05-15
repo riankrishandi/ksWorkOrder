@@ -32,6 +32,7 @@ class Photo extends React.Component {
                 console.log('Error: ', response.error);
             } else {
                 let photoDataBase64 = response.data;
+                
                 handleTakePhoto(photoDataBase64);
             }
         });
@@ -72,9 +73,6 @@ class Photo extends React.Component {
                                 style={styles.icon}
                             />
                         </TouchableOpacity>
-                        {/* <TouchableOpacity style={[styles.button, {marginTop: 5}]}>
-                            <Text style={styles.textTakePhoto}>Delete</Text>
-                        </TouchableOpacity> */}
                     </View>
                 </View>
             </View>
@@ -110,7 +108,6 @@ const styles = StyleSheet.create({
         alignContent: 'center',
         backgroundColor: 'white',
         borderRadius: 5,
-        // borderWidth: 1,
         flex: 1,
         justifyContent: 'center',
         padding: 15
@@ -131,7 +128,6 @@ const styles = StyleSheet.create({
     viewButton: {
         flex: 1,
         flexDirection: 'row',
-        // marginLeft: 8
     },
     viewPhoto: {
         borderRadius: 5,

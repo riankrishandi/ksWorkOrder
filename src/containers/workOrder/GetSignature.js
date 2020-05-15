@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import Signature from 'react-native-signature-canvas';
 
+import { showAlertOk } from '../../GeneralFunction';
+
 export default class SignatureScreen extends React.Component {
     constructor(props) {
         super(props);
@@ -9,14 +11,17 @@ export default class SignatureScreen extends React.Component {
 
     handleSignature = signature => {
         const { navigate } = this.props.navigation;
+
         navigate('CheckInOut', {
             signature: signature,
         });
     };
 
     handleEmpty = () => {
-        console.log('Empty');
-        alert('Signature is blank. Please sign again.');
+        let title = "Warning";
+        let message = "Signature cannot be blank."
+
+        showAlertOk(title, message);
     }
 
     render() {
@@ -45,8 +50,6 @@ export default class SignatureScreen extends React.Component {
 const styles = StyleSheet.create({
     container: {
         alignContent: "center",
-        // alignItems: "center",
-        // alignSelf: "center",
         height: "100%",
         justifyContent: "center",
         width: "100%"

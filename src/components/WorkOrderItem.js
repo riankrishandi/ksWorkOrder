@@ -14,7 +14,7 @@ class WorkOrderItem extends React.Component {
     }
 
     render() {
-        const { workOrder, handleWorkOrder, color } = this.props;
+        const { color, handleWorkOrder, workOrder } = this.props;
         return (
             <View style={styles.container}>
                 <View style={[styles.viewLine, { backgroundColor: color }]} />

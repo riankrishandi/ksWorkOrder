@@ -11,11 +11,17 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 
-import TabViewWorkOrder from '../../components/TabViewWorkOrder';
-import { getProcessWorkOrder, setSyncProcessWorkOrderComments, cancelWorkOrder, finalizeWorkOrder } from '../../actions/processWorkOrder/processWorkOrderFunctions';
 import Loading from '../../Loading';
 import Process from '../../components/Process';
-import {showToast} from '../../GeneralFunction';
+import TabViewWorkOrder from '../../components/TabViewWorkOrder';
+
+import {
+    getProcessWorkOrder,
+    setSyncProcessWorkOrderComments,
+    cancelWorkOrder,
+    finalizeWorkOrder
+} from '../../actions/processWorkOrder/processWorkOrderFunctions';
+import { showAlertOkCancel, showToast } from '../../GeneralFunction';
 
 class ProcessWorkOrder extends React.Component {
 
@@ -29,28 +35,37 @@ class ProcessWorkOrder extends React.Component {
 
     _onRefresh = () => {
         const { workOrder } = this.props;
+
         this.setState({ refreshing: true });
+
         this.getWorkOrder(workOrder);
+
         this.setState({ refreshing: false });
     }
 
     componentDidMount = () => {
         const { route } = this.props;
-        var workOrder = route.params?.workOrder;
+        
+        let workOrder = route.params?.workOrder;
+
         this.getWorkOrder(workOrder);
     }
 
     componentWillUnmount = () => {
         const { workOrder } = this.props;
         const { tempComments } = this.state;
-        console.log(tempComments);
-        if (tempComments !== null) {
-            setSyncProcessWorkOrderComments(workOrder.id_work_order, tempComments);
+
+        let finalized = workOrder.finalized;
+        let idWorkOrder = workOrder.id_work_order;
+
+        if (finalized == 0 && tempComments != null) {
+            setSyncProcessWorkOrderComments(idWorkOrder, tempComments);
         }
     }
 
     getWorkOrder = (workOrder) => {
         const { dispatch, navigation, idEmployee } = this.props;
+
         dispatch(getProcessWorkOrder(workOrder, navigation, idEmployee))
             .then(message => {
                 if (message) {
@@ -61,60 +76,46 @@ class ProcessWorkOrder extends React.Component {
 
     handleCancelWorkOrder = () => {
         const { dispatch, workOrder, idEmployee } = this.props;
-        dispatch(cancelWorkOrder(workOrder.id_work_order, idEmployee));
+
+        dispatch(cancelWorkOrder(workOrder.id_work_order, idEmployee))
+            .then(message => {
+                if (message) {
+                    showToast(message);
+                }
+            });
     }
 
     confirmCancelWorkOrder = () => {
-        Alert.alert(
-            'Warning',
-            'Are you sure to cancel?',
-            [
-                {
-                    text: 'Ok',
-                    onPress: () => this.handleCancelWorkOrder()
-                },
-                {
-                    text: 'Cancel',
-                    onPress: () => console.log('Cancel Pressed'),
-                    style: 'cancel'
-                },
-            ],
-            { cancelable: true }
-        );
+        let title = "Warning";
+        let message = "Are you sure to cancel?";
+
+        showAlertOkCancel(title, message, this.handleCancelWorkOrder);
     }
 
     handleFinalizeWorkOrder = () => {
         const { dispatch, workOrder, idEmployee } = this.props;
         const { tempComments } = this.state;
-        var comments = tempComments == null ? workOrder.work_order_comments : tempComments;
-        dispatch(finalizeWorkOrder(
-            comments,
-            workOrder.id_work_order,
-            idEmployee
-        ));
+
+        let comments = tempComments == null ? workOrder.work_order_comments : tempComments;
+        let idWorkOrder = workOrder.id_work_order;
+
+        dispatch(finalizeWorkOrder(comments, idWorkOrder, idEmployee))
+            .then(message => {
+                if (message) {
+                    showToast(message);
+                }
+            });
     }
 
     confirmFinalizeWorkOrder = () => {
-        Alert.alert(
-            'Confirm',
-            'Are you sure to finalize?',
-            [
-                {
-                    text: 'Ok',
-                    onPress: () => this.handleFinalizeWorkOrder()
-                },
-                {
-                    text: 'Cancel',
-                    onPress: () => console.log('Cancel Pressed'),
-                    style: 'cancel'
-                },
-            ],
-            { cancelable: true }
-        );
+        let title = "Warning";
+        let message = "Are you sure to finalize?";
+
+        showAlertOkCancel(title, message);
     }
 
     render() {
-        const { error, loading, navigation, workOrder } = this.props;
+        const { loading, navigation, workOrder } = this.props;
         const { refreshing, tempComments } = this.state;
 
         if (loading) {

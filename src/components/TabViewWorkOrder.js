@@ -17,21 +17,18 @@ class TabViewWorkOrder extends React.Component {
             width: Dimensions.get('window').width,
             tabFocused: 0
         };
+        
         Dimensions.addEventListener('change', (e) => {
             this.setState(e.window);
         });
     }
 
     handleFocusTab0 = () => {
-        this.setState({
-            tabFocused: 0
-        });
+        this.setState({tabFocused: 0});
     }
 
     handleFocusTab1 = () => {
-        this.setState({
-            tabFocused: 1
-        });
+        this.setState({tabFocused: 1});
     }
 
     render() {

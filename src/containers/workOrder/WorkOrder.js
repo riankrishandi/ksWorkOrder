@@ -12,11 +12,12 @@ import { connect } from 'react-redux';
 import { ScrollableTabView, DefaultTabBar, ScrollableTabBar, } from '@valdio/react-native-scrollable-tabview';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import Loading from '../../Loading';
+import ScrollViewWorkOrder from '../../components/ScrollViewWorkOrder';
+import WorkOrderItem from '../../components/WorkOrderItem';
+
 import { getLogin } from '../../actions/login/loginFunctions';
 import { getAndFilterWorkOrders } from '../../actions/workOrder/workOrderFunctions';
-import Loading from '../../Loading';
-import WorkOrderItem from '../../components/WorkOrderItem';
-import ScrollViewWorkOrder from '../../components/ScrollViewWorkOrder';
 import { showToast } from '../../GeneralFunction';
 
 var moment = require('moment');
@@ -84,6 +85,7 @@ class WorkOrder extends React.Component {
 
     setDatePicked = (event, datePicked) => {
         const { displayedDate } = this.state;
+        
         datePicked = datePicked || displayedDate;
 
         if (moment(datePicked).isSame(displayedDate)) {
