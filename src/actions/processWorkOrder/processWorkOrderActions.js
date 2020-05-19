@@ -1,7 +1,7 @@
 import {
     GET_PROCESS_WORK_ORDER_BEGIN,
     SET_PROCESS_WORK_ORDER,
-    SYNC_PROCESS_WORK_ORDER_COMMENTS,
+    GET_PROCESS_WORK_ORDER_TEMP_REPORT,
     GET_PROCESS_WORK_ORDER_SUCCESS,
     ERROR_GET_PROCESS_WORK_ORDER,
     DO_CHECK_IN_BEGIN,
@@ -27,9 +27,9 @@ export const setProcessWorkOrder = (workOrder) => ({
     workOrder
 });
 
-export const syncProcessWorkOrderComments = (comments) => ({
-    type: SYNC_PROCESS_WORK_ORDER_COMMENTS,
-    comments
+export const getProcessWorkOrderTempReport = (report) => ({
+    type: GET_PROCESS_WORK_ORDER_TEMP_REPORT,
+    report
 });
 
 export const getProcessWorkOrderSuccess = () => ({
@@ -103,9 +103,9 @@ export const finalizeWorkOrderBegin = () => ({
     type: FINALIZE_WORK_ORDER_BEGIN
 });
 
-export const finalizeWorkOrderSuccess = (comments) => ({
+export const finalizeWorkOrderSuccess = (report) => ({
     type: FINALIZE_WORK_ORDER_SUCCESS,
-    comments
+    report
 });
 
 export const errorFinalizeWorkOrder = (error) => ({

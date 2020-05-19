@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {
     getProcessWorkOrderBegin,
     setProcessWorkOrder,
-    syncProcessWorkOrderComments,
+    getProcessWorkOrderTempReport,
     getProcessWorkOrderSuccess,
     errorGetProcessWorkOrder,
     doCheckInBegin,
@@ -29,7 +29,8 @@ var dateVisitAttendance = moment(new Date()).format('YYYY-MM-DD');
 
 let titleAlert = "Warning";
 
-export const setSyncProcessWorkOrderComments = async (idWorkOrder, value) => {
+
+export const setProcessWorkOrderTempReport = async (idWorkOrder, value) => {
     try {
         var key = "workOrderId:" + idWorkOrder;
 
@@ -39,7 +40,8 @@ export const setSyncProcessWorkOrderComments = async (idWorkOrder, value) => {
     }
 }
 
-export const deleteSyncProcessWorkOrderComments = async (idWorkOrder) => {
+
+export const deleteProcessWorkOrderTempReport = async (idWorkOrder) => {
     try {
         var key = "workOrderId:" + idWorkOrder;
 
@@ -48,6 +50,7 @@ export const deleteSyncProcessWorkOrderComments = async (idWorkOrder) => {
         console.log(e);
     }
 }
+
 
 export const getProcessWorkOrder = (workOrder, navigation, idEmployee) => {
     var idWorkOrder = workOrder.id_work_order;
@@ -59,7 +62,7 @@ export const getProcessWorkOrder = (workOrder, navigation, idEmployee) => {
         dispatch(getProcessWorkOrderBegin());
 
         var key = "workOrderId:" + idWorkOrder;
-        var syncComments = await AsyncStorage.getItem(key);
+        var tempReport = await AsyncStorage.getItem(key);
 
         return axios
             .post(address, body)
@@ -67,17 +70,17 @@ export const getProcessWorkOrder = (workOrder, navigation, idEmployee) => {
                 if (res.data.success == 1) {
                     let resWorkOrder = res.data.data;
                     let finalized = resWorkOrder.finalized;
-                    let comments = resWorkOrder.work_order_comments;
+                    let report = resWorkOrder.report;
 
                     dispatch(setProcessWorkOrder(resWorkOrder));
 
                     if (finalized == 1) {
-                        if (comments == null || comments == '') {
-                            dispatch(syncProcessWorkOrderComments('No comments.'));
+                        if (report == null || report == '') {
+                            dispatch(getProcessWorkOrderTempReport('Report is empty.'));
                         }
                     } else {
-                        if (syncComments != null) {
-                            dispatch(syncProcessWorkOrderComments(syncComments));
+                        if (tempReport != null) {
+                            dispatch(getProcessWorkOrderTempReport(tempReport));
                         }
                     }
                     dispatch(getProcessWorkOrderSuccess());
@@ -102,14 +105,14 @@ export const getProcessWorkOrder = (workOrder, navigation, idEmployee) => {
                 dispatch(setProcessWorkOrder(workOrder));
 
                 let finalized = workOrder.finalized;
-                let comments = workOrder.comments;
+                let report = workOrder.report;
 
                 if (finalized == 1) {
-                    if (comments == null) {
-                        dispatch(syncProcessWorkOrderComments('No comments.'));
+                    if (report == null) {
+                        dispatch(getProcessWorkOrderTempReport('Report is empty.'));
                     }
-                } else if (syncComments != null) {
-                    dispatch(syncProcessWorkOrderComments(syncComments));
+                } else if (tempReport != null) {
+                    dispatch(getProcessWorkOrderTempReport(tempReport));
                 }
 
                 dispatch(errorGetProcessWorkOrder(err));
@@ -120,6 +123,7 @@ export const getProcessWorkOrder = (workOrder, navigation, idEmployee) => {
             });
     }
 }
+
 
 export const doCheckIn = (
     idWorkOrder,
@@ -183,6 +187,7 @@ export const doCheckIn = (
             });
     }
 }
+
 
 export const doCheckOut = (
     idWorkOrder,
@@ -248,6 +253,7 @@ export const doCheckOut = (
     }
 }
 
+
 export const cancelWorkOrder = (idWorkOrder, idEmployee) => {
     let address = "http://localhost:3000/api/workOrder/updateWorkOrderCancelByIdWorkOrder";
     let body = {
@@ -288,10 +294,11 @@ export const cancelWorkOrder = (idWorkOrder, idEmployee) => {
     }
 }
 
-export const finalizeWorkOrder = (comments, idWorkOrder, idEmployee) => {
+
+export const finalizeWorkOrder = (report, idWorkOrder, idEmployee) => {
     let address = "http://localhost:3000/api/workOrder/updateWorkOrderFinalizeByIdWorkOrder";
     let body = {
-        comments,
+        report,
         idWorkOrder: idWorkOrder
     };
 
@@ -302,11 +309,11 @@ export const finalizeWorkOrder = (comments, idWorkOrder, idEmployee) => {
             .patch(address, body)
             .then((res) => {
                 if (res.data.success = 1) {
-                    dispatch(finalizeWorkOrderSuccess(comments));
+                    dispatch(finalizeWorkOrderSuccess(report));
 
                     dispatch(getAndFilterWorkOrders(idEmployee, dateVisitAttendance));
 
-                    deleteSyncProcessWorkOrderComments(idWorkOrder);
+                    deleteProcessWorkOrderTempReport(idWorkOrder);
 
                     let message = "Finalization success.";
 

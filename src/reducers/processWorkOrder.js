@@ -1,7 +1,7 @@
 import {
     GET_PROCESS_WORK_ORDER_BEGIN,
     SET_PROCESS_WORK_ORDER,
-    SYNC_PROCESS_WORK_ORDER_COMMENTS,
+    GET_PROCESS_WORK_ORDER_TEMP_REPORT,
     GET_PROCESS_WORK_ORDER_SUCCESS,
     ERROR_GET_PROCESS_WORK_ORDER,
     DO_CHECK_IN_BEGIN,
@@ -40,12 +40,12 @@ const processWorkOrder = (state = initialState, action) => {
                 workOrder: action.workOrder
             };
 
-        case SYNC_PROCESS_WORK_ORDER_COMMENTS:
+        case GET_PROCESS_WORK_ORDER_TEMP_REPORT:
             return {
                 ...state,
                 workOrder: {
                     ...state.workOrder,
-                    work_order_comments: action.comments
+                    report: action.report
                 }
             };
 
@@ -157,7 +157,7 @@ const processWorkOrder = (state = initialState, action) => {
                 loading: false,
                 workOrder: {
                     ...state.workOrder,
-                    work_order_comments: action.comments,
+                    report: action.report,
                     finalized: 1
                 }
             };

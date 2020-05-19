@@ -17,7 +17,7 @@ import TabViewWorkOrder from '../../components/TabViewWorkOrder';
 
 import {
     getProcessWorkOrder,
-    setSyncProcessWorkOrderComments,
+    setProcessWorkOrderTempReport,
     cancelWorkOrder,
     finalizeWorkOrder
 } from '../../actions/processWorkOrder/processWorkOrderFunctions';
@@ -29,7 +29,7 @@ class ProcessWorkOrder extends React.Component {
         super(props);
         this.state = {
             refreshing: false,
-            tempComments: null
+            tempReport: null
         };
     }
 
@@ -53,13 +53,13 @@ class ProcessWorkOrder extends React.Component {
 
     componentWillUnmount = () => {
         const { workOrder } = this.props;
-        const { tempComments } = this.state;
+        const { tempReport } = this.state;
 
         let finalized = workOrder.finalized;
         let idWorkOrder = workOrder.id_work_order;
 
-        if (finalized == 0 && tempComments != null) {
-            setSyncProcessWorkOrderComments(idWorkOrder, tempComments);
+        if (finalized == 0 && tempReport != null) {
+            setProcessWorkOrderTempReport(idWorkOrder, tempReport);
         }
     }
 
@@ -94,12 +94,12 @@ class ProcessWorkOrder extends React.Component {
 
     handleFinalizeWorkOrder = () => {
         const { dispatch, workOrder, idEmployee } = this.props;
-        const { tempComments } = this.state;
+        const { tempReport } = this.state;
 
-        let comments = tempComments == null ? workOrder.work_order_comments : tempComments;
+        let report = tempReport == null ? workOrder.report : tempReport;
         let idWorkOrder = workOrder.id_work_order;
 
-        dispatch(finalizeWorkOrder(comments, idWorkOrder, idEmployee))
+        dispatch(finalizeWorkOrder(report, idWorkOrder, idEmployee))
             .then(message => {
                 if (message) {
                     showToast(message);
@@ -116,7 +116,7 @@ class ProcessWorkOrder extends React.Component {
 
     render() {
         const { loading, navigation, workOrder } = this.props;
-        const { refreshing, tempComments } = this.state;
+        const { refreshing, tempReport } = this.state;
 
         if (loading) {
             return <Loading />;
@@ -171,21 +171,21 @@ class ProcessWorkOrder extends React.Component {
                                 <TabViewWorkOrder workOrder={workOrder} />
                             </View>
                         </View>
-                        <View style={styles.viewComments}>
-                            <Text style={styles.textTitle}>Comments</Text>
+                        <View style={styles.viewReports}>
+                            <Text style={styles.textTitle}>Report</Text>
                             {
                                 workOrder.finalized == 0 && <TextInput
                                     multiline={true}
-                                    onChangeText={(comments) => this.setState({ tempComments: comments })}
-                                    placeholder='Type your comments here.'
+                                    onChangeText={(report) => this.setState({ tempReport: report })}
+                                    placeholder='Type your report here.'
                                     style={styles.textInput}
                                     underlineColorAndroid='#b3b3b3'
-                                    value={tempComments == null ? workOrder.work_order_comments : tempComments}
+                                    value={tempReport == null ? workOrder.report : tempReport}
                                 />
                             }
                             {
-                                workOrder.finalized == 1 && <Text style={styles.textComments}>
-                                    {workOrder.work_order_comments}
+                                workOrder.finalized == 1 && <Text style={styles.textReports}>
+                                    {workOrder.report}
                                 </Text>
                             }
                         </View>
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         textAlign: 'center'
     },
-    textComments: {
+    textReports: {
         color: '#666666',
         backgroundColor: 'white',
         borderRadius: 5,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     viewInformation: {
         marginTop: 30
     },
-    viewComments: {
+    viewReports: {
         marginTop: 30
     },
     viewProcess: {

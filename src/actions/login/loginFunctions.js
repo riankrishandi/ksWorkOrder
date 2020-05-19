@@ -132,18 +132,19 @@ export const doLogin = (username, password) => {
 
                         showAlertOk(title, message);
                     }
-                }).catch(
-                    (err) => {
-                        console.log(err);
+                })
+            .catch(
+                (err) => {
+                    console.log(err);
 
-                        dispatch(errorDoLogin(err));
+                    dispatch(errorDoLogin(err));
 
-                        let title = "Warning";
-                        let message = "No internet connection.";
+                    let title = "Warning";
+                    let message = "No internet connection.";
 
-                        showAlertOk(title, message);
-                    }
-                );
+                    showAlertOk(title, message);
+                }
+            );
     };
 };
 
@@ -170,7 +171,7 @@ export const doLogout = () => {
                     }
                 }, (err) => {
                     console.log(err);
-                    
+
                     dispatch(errorDoLogout(err));
                 }
             );
