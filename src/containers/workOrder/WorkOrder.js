@@ -9,7 +9,7 @@ import {
     View
 } from 'react-native';
 import { connect } from 'react-redux';
-import { ScrollableTabView, DefaultTabBar, ScrollableTabBar, } from '@valdio/react-native-scrollable-tabview';
+import { ScrollableTabView, ScrollableTabBar, } from '@valdio/react-native-scrollable-tabview';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import Loading from '../../Loading';
@@ -85,7 +85,7 @@ class WorkOrder extends React.Component {
 
     setDatePicked = (event, datePicked) => {
         const { displayedDate } = this.state;
-        
+
         datePicked = datePicked || displayedDate;
 
         if (moment(datePicked).isSame(displayedDate)) {
@@ -180,15 +180,15 @@ class WorkOrder extends React.Component {
                     </TouchableOpacity>
                 </View>
                 <ScrollableTabView
+                    contentStyle={styles.viewTab}
                     renderTabBar={() => <ScrollableTabBar />}
-                    tabBarUnderlineStyle={{
-                        backgroundColor: 'black'
-                    }}
+                    showsHorizontalScrollIndicator={false}
                     tabBarActiveTextColor='black'
                     tabBarBackgroundColor='white'
                     tabBarInactiveTextColor='#666666'
-                    showsHorizontalScrollIndicator={false}
-                    contentStyle={styles.viewTab}
+                    tabBarUnderlineStyle={{
+                        backgroundColor: 'black'
+                    }}
                 >
                     <ScrollViewWorkOrder
                         handleWorkOrder={this.handleWorkOrder}

@@ -10,7 +10,7 @@ import {
 
 import { requestLocationPermission } from '../GeneralFunction';
 
-class Process extends React.Component {
+class Attendance extends React.Component {
 
     constructor(props) {
         super(props);
@@ -30,7 +30,7 @@ class Process extends React.Component {
     }
 
     render() {
-        const { process, timeIn, timeOut } = this.props;
+        const { state, timeIn, timeOut } = this.props;
         const { width } = this.state;
 
         return (
@@ -50,10 +50,10 @@ class Process extends React.Component {
                     </View>
                     <View style={styles.viewInformation}>
                         {
-                            process == -1 ?
+                            state == -1 ?
                                 <Text style={[styles.textInformation, { color: '#666666', textAlign: 'center' }]}>
                                     Not Available
-                                </Text> : process == 0 ?
+                                </Text> : state == 0 ?
                                     <TouchableOpacity style={styles.buttonStart} onPress={() => this.handleCheckInOut(0)}>
                                         <Text style={styles.textButtonStart}>Start</Text>
                                     </TouchableOpacity> :
@@ -81,10 +81,10 @@ class Process extends React.Component {
                     </View>
                     <View style={styles.viewInformation}>
                         {
-                            process == -2 || process == -1 || process == 0 ?
+                            state == -2 || state == -1 || state == 0 ?
                                 <Text style={[styles.textInformation, { color: '#666666', textAlign: 'center' }]}>
                                     Not Available
-                                </Text> : process == 1 ?
+                                </Text> : state == 1 ?
                                     <TouchableOpacity style={styles.buttonFinish} onPress={() => this.handleCheckInOut(1)}>
                                         <Text style={styles.textButtonFinish}>Finish</Text>
                                     </TouchableOpacity> :
@@ -182,4 +182,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Process;
+export default Attendance;

@@ -87,64 +87,63 @@ class Login extends React.Component {
 
 const styles = StyleSheet.create({
     buttonLogin: {
+        backgroundColor: 'lightgrey',
         borderRadius: 10,
-        backgroundColor: '#1c313a',
-        width: 300,
-        paddingVertical: 15,
         marginVertical: 10,
+        paddingVertical: 15,        
+        width: 300
     },
     container: {
         alignItems: "center",
-        justifyContent: "center",
         flex: 1,
         fontWeight: '500',
+        justifyContent: "center"
     },
     imageLogo: {
-        width: 120,
         height: 120,
+        width: 120
     },
     textInput: {
-        width: 300,
         borderColor: 'black',
         borderStyle: 'solid',
         borderWidth: 1,
         borderRadius: 10,
-        paddingHorizontal: 16,
-        marginVertical: 10,
         fontSize: 16,
+        marginVertical: 10,
+        paddingHorizontal: 16,
+        width: 300
     },
     textLogin: {
         fontSize: 16,
-        textAlign: 'center',
-        color: '#ffffff',
+        textAlign: 'center'
     },
     textLogo: {
-        marginVertical: 10,
         fontSize: 18,
+        marginVertical: 10
     },
     textSignUp: {
-        fontSize: 16,
         color: 'rgb(0,0,255)',
+        fontSize: 16
     },
     textSignUpLabel: {
-        fontSize: 16,
+        fontSize: 16
     },
     viewLogo: {
         alignItems: "center",
-        justifyContent: "flex-end",
         flexGrow: 1,
+        justifyContent: "flex-end"
     },
     viewInput: {
-        flexGrow: 1,
         alignItems: 'center',
-        justifyContent: "center",
+        flexGrow: 1,
+        justifyContent: "center"
     },
     viewSignUp: {
-        flexGrow: 1,
         alignItems: 'flex-end',
-        justifyContent: 'center',
-        marginVertical: 16,
         flexDirection: 'row',
+        flexGrow: 1,
+        justifyContent: 'center',
+        marginVertical: 16
     }
 });
 

@@ -12,7 +12,7 @@ import {
 import { connect } from 'react-redux';
 
 import Loading from '../../Loading';
-import Process from '../../components/Process';
+import Attendance from '../../components/Attendance';
 import TabViewWorkOrder from '../../components/TabViewWorkOrder';
 
 import {
@@ -45,7 +45,7 @@ class ProcessWorkOrder extends React.Component {
 
     componentDidMount = () => {
         const { route } = this.props;
-        
+
         let workOrder = route.params?.workOrder;
 
         this.getWorkOrder(workOrder);
@@ -146,13 +146,17 @@ class ProcessWorkOrder extends React.Component {
                     }
                 >
                     <View style={styles.container}>
+                        {/* <View style={styles.viewHeader}>
+                            <Text></Text>
+                        </View> */}
                         <View style={[
-                            styles.viewProcess,
+                            styles.viewAttendance,
                             workOrder.finalized == 0 && workOrder.cancelled == 0 ? { marginTop: 15 } : { marginTop: 5 }
                         ]}>
-                            <Text style={styles.textTitle}>Process</Text>
-                            <Process
-                                process={
+                            
+                            <Text style={styles.textTitle}>Attendance</Text>
+                            <Attendance
+                                state={
                                     workOrder.cancelled == 1 && workOrder.time_out != null ?
                                         -3 : workOrder.cancelled == 1 && workOrder.time_in != null ?
                                             -2 : workOrder.cancelled == 1 ?
@@ -307,13 +311,18 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         width: '100%'
     },
+    viewHeader: {
+        backgroundColor: 'white',
+        padding: 10,
+        width: '100%'
+    },
     viewInformation: {
         marginTop: 30
     },
     viewReports: {
         marginTop: 30
     },
-    viewProcess: {
+    viewAttendance: {
 
     },
     viewStatus: {
